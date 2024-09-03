@@ -21,3 +21,10 @@ T_total = temppred(lon,lat,depth,mixlay,t,ut,vt,temp,-20.84,47.67,0,100,100,1100
 T_totalavg = temppred_avg(lon,lat,depth,mixlay,t,ut,vt,temp,-20.84,47.67,0,100,100,1100,22,14,1);
 % Temperature at sediment trap location
 T_total2 = temppred2(lon,lat,depth,mixlay,t,temp,-20.84,47.67,0,100,100,1100,22,14);
+
+%% d13CDIC around location
+load GLODAPv2.2023_Merged_Master_File.mat
+clc; clearvars;
+%
+fe = findcarb(10.67,69.33,0,150);
+writetable(fe,"LB1_1_d13C.xlsx");
