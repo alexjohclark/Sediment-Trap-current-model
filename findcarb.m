@@ -1,6 +1,6 @@
 %% Function to derive carbonate parameters around given location
 function d13C = findcarb(londata,latdata,depthmin,depthmax)
-load GLODAPv2.2023_Merged_Master_File.mat % Can be found on https://www.ncei.noaa.gov/pub/data/metadata/published/paleo/json/noaa-ocean-37240.json
+load GLODAPv2.2023_Merged_Master_File.mat % Can be downloaded from https://glodap.info/index.php/merged-and-adjusted-data-product-v2-2023/
 
 lon = G2longitude;
 lat = G2latitude;
