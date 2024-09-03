@@ -1,9 +1,6 @@
-%% xyz of a particle following currents until trap depth
-function te = temppred2(lon,lat,depth,mixlay,t,ut,vt,temp,long,lati,mini,maxi,S,Tdep,nrsamp,day)
-
-
-%S = 100; Tdep = 1996; day = 8.50; mini =20; maxi=80; long = 58.80; lati = 17.40; %input parameters
-%%
+%% Function deriving the sinking path of a particle and temperature at place of sediment trap
+function te = temppred2(lon,lat,depth,mixlay,t,temp,long,lati,mini,maxi,S,Tdep,nrsamp,day)
+%% Time duration of trap opening
 Ss = S/86400; % is the sinking speed in m/s (from m/d)
 dep = Ss*60*60; % depth after an hour for faster computations, m/h
 ttrap = Tdep/dep; %time to trap in hours
@@ -25,7 +22,6 @@ cltrap = discretize(entrap,tweek);
 startx = discretize(long,lon);
 starty = discretize(lati,lat);
 
-%% Temperature
 % Temperature range for maximum production depths
 temptot = zeros(length(depth),length(t),length(lon),length(lat));
 temp = flip(flip(temp,1),2);
@@ -142,7 +138,7 @@ meantempsst = mean(nonzeros(sst_temp_mean),'omitnan');
 stdtempsst = mean(nonzeros(sst_temp_std),'omitnan');
 
 %% Depth range of D47 temperature at sedi trap
-D47_temptable = readtable("D47_sed_simpl.csv",'VariableNamingRule','preserve');
+D47_temptable = readtable("Supplementary Table S7.csv",'VariableNamingRule','preserve');
 D47_temp = table2array(D47_temptable(:,'D47 Temp'));
 D47_temp_SD = table2array(D47_temptable(:,'D47 Temp SD'));
 %nrsamp = 7;
