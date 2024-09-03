@@ -1,4 +1,4 @@
-%%Function to derive carbonate parameters around given location
+%% Function to derive carbonate parameters around given location
 function d13C = findcarb(londata,latdata,depthmin,depthmax)
 load GLODAPv2.2023_Merged_Master_File.mat
 
