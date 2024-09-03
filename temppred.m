@@ -1,4 +1,4 @@
-%% xyz of a particle following currents until trap depth
+%% Function deriving the sinking path of a particle and temperature from origin
 function te = temppred(lon,lat,depth,mixlay,t,ut,vt,temp,long,lati,mini,maxi,S,Tdep,nrsamp,day)
 % Velocity for all locations into a more workable form
 utot = zeros(height(depth),height(t),height(lon),height(lat));
@@ -12,9 +12,7 @@ end
 utot = flip(utot,1);
 vtot = flip(vtot,1);
 
-% Movement of particle in xyz direction for all 
-%S = 75; Tdep = 1996; day = 8.50; mini =20; maxi=80; long = 58.80; lati =17.40; %input parameters
-%%
+%% Time duration of time opening
 Ss = S/86400; % is the sinking speed in m/s (from m/d)
 dep = Ss*60*60; % depth after an hour for faster computations, m/h
 ttrap = Tdep/dep; %time to trap in hours
@@ -45,7 +43,7 @@ y = -60*60*vtot(ddd,:,:,:);
 x(isnan(x))=0;
 y(isnan(y))=0;
 
-%% distance to travel per time inverval and location
+%% Distance to travel per time inverval and location
 xt = zeros(height(x),width(x),height(lon),height(lat));
 yt = zeros(height(x),width(y),height(lon),height(lat));
 for iv = 1:height(lon)
@@ -61,11 +59,10 @@ for iv = 1:height(lon)
     end
 end
 
-%% Temperature at location and for maximum production depth
+%% Movement of a particle
 % Reshape into lon-lat vs depth and time
 startx = discretize(long,lon);
 starty = discretize(lati,lat);
-% Movement of one particle following set position
 
 R = 6371000;%depth of the Earth in m
 xcoor = R.*cosd(lat).*cosd(lon); %x-coordinates of lon-lat grid
@@ -128,13 +125,9 @@ end
 lengt = transpose(lentot);
 ylat = (ym./110574.0)+lati;
 xlon = xm.*(1/(111320*cosd(lati)))+long;
-%%
-%test = xt(499:510,optrap:cltrap,:,:);
-%test1 = xm(378:385,:,:,:);
-%test2 = xa(378:385,optrap:cltrap,:,:);
-%test3 = x(378:385,optrap:cltrap,:,:);
-%% Temperature
-% Temperature range for maximum production depths
+
+%% Temperature at location
+% Temperature range
 temptot = zeros(length(depth),length(t),length(lon),length(lat));
 temp = flip(flip(temp,1),2);
 for i = 1:length(lon)
@@ -148,7 +141,7 @@ depthmax = discretize(maxi,depth);
 locx = xlon(end);
 locy = ylat(end);
 %Correction if current path goes outside of model dataset - will be visible
-%on plots to then obtain a wider model dataset
+%on plots to then obtain a wider dataset
 if locx >= lon(end)
     actlocx = discretize(lon(end),lon);
 elseif locx <= lon(1)
@@ -268,13 +261,13 @@ meantempsst = mean(nonzeros(sst_temp_mean),'omitnan');
 stdtempsst = mean(nonzeros(sst_temp_std),'omitnan');
 
 %% Depth range of D47 temperature at provenance
-D47_temptable = readtable("D47_sed_simpl.csv",'VariableNamingRule','preserve');
+D47_temptable = readtable("Supplementary Table S7.csv",'VariableNamingRule','preserve');
 D47_temp = table2array(D47_temptable(:,'D47 Temp'));
 D47_temp_SD = table2array(D47_temptable(:,'D47 Temp SD'));
 %nrsamp = 18;
 depthD47 = zeros(length(depth),ceil(dur),length(lon),length(lat));
 for j = 1:length(depth)
-    for ji = 1:cltrap
+    for ji = optrap:cltrap
         if temptot(j,ji,actlocx,actlaty) <= D47_temp(nrsamp) + D47_temp_SD(nrsamp) && temptot(j,ji,actlocx,actlaty) >= D47_temp(nrsamp) - D47_temp_SD(nrsamp)
             depthD47(j,ji,:,:) = depth(j);
         elseif temptot(j,ji,actlocx,actlaty) <= D47_temp(nrsamp) && temptot(j,ji,actlocx,actlaty) >= D47_temp(nrsamp) - D47_temp_SD(nrsamp)
@@ -289,7 +282,6 @@ for j = 1:length(depth)
     end
 end
 mdepD47 = mean(depthD47range,2,'omitnan');
-%sdepD47 = [std(depthD47range(1,:)) std(depthD47range(2,:))]; % Potentially for the temporal range 
 %% Does D47 temperature fit with which temperature range at provenance
 if mix_dep_temp + std_dep_temp <= D47_temp(nrsamp) + D47_temp_SD(nrsamp) && mix_dep_temp + std_dep_temp >= D47_temp(nrsamp) - D47_temp_SD(nrsamp)
     D47_comp(1,1) = mix_dep_temp;
@@ -422,14 +414,15 @@ writetable(D47_max1,'temps_maxpro.xlsx');
 writetable(D47_phot1,'temps_phozo.xlsx');
 writetable(D47_sst1,'temps_SST.xlsx');
 
-%% plots
+%% Reconfigure for figure plotting
 temptot1 = mean(mean(temptot(depthmin:depthmax,optrap:cltrap,:,:),'omitnan'),'omitnan');
+temptot1 = flip(flip(temptot1,1),2);
 for i = 1:length(lon)
     for ii = 1:length(lat)
         temptot2(i,ii,:,:) = reshape(temptot1(:,:,i,ii),1,1); %depth = rows, time is columns, last two are lon and lat
     end
 end
-%%
+% Figure to double check
 figure
 s = pcolor(lon,lat,temptot2);
 s.FaceColor = 'interp';
