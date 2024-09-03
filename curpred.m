@@ -1,4 +1,4 @@
-%% xyz of a particle following currents until trap depth
+%% Function of a sinking particle until depth for given time period and year
 function f = curpred(lon,lat,depth,t,ut,vt,long,lati,S,Tdep,day,year)
 % Velocity for all locations into a more workable form
 utot = zeros(height(depth),height(t),height(lon),height(lat));
@@ -9,11 +9,12 @@ for i = 1:height(lon)
         vtot(:,:,i,ii) = reshape(vt(i,ii,:,:),height(depth),height(t));
     end
 end
+% Flipped from sediment trap upwards
 utot = flip(utot,1);
 vtot = flip(vtot,1);
 
 %% Movement of particle in xyz direction for all
-%S = 100; Tdep = 4000; day = 17.38; long = 13.5628; lati = -41.1361; year = 1995;%input parameters;
+%S = 100; Tdep = 4000; day = 17.38; long = 13.5628; lati = -41.1361; year = 1995;%test input parameters;
 
 Ss = S/86400; % is the sinking speed in m/s (from m/d)
 dep = Ss*60*60; % depth after an hour for faster computations, m/h
@@ -47,7 +48,7 @@ y = -60*60*vtot(ddd,:,:,:);
 x(isnan(x))=0;
 y(isnan(y))=0;
 
-%% distance to travel per time inverval and location
+%% Distance to travel per time inverval and location
 xt = zeros(height(x),width(x),height(lon),height(lat));
 yt = zeros(height(x),width(y),height(lon),height(lat));
 for iv = 1:height(lon)
@@ -62,11 +63,8 @@ for iv = 1:height(lon)
         end
     end
 end
-%%
-%test = xt(:,:,20,20);
-%testxt = mean(xt(:,optrap:cltrap,:,:),2,'omitnan');
-%test1 = testxt(:,:,20,20);
-%% Movement of one particle following set position
+
+%% Movement of a particle
 R = 6371000;%depth of the Earth in m
 xcoor = R.*cosd(lat).*cosd(lon); %x-coordinates of lon-lat grid
 ycoor = R.*cosd(lat).*sind(lon); %y-coordinates of lon-lat grid
@@ -101,10 +99,6 @@ for viii = 1:length(ycoor)/2 - 1
     end
 end
 
-%%
-%test = yt(:,28,12,13);
-%test1 =y(:,optrap:cltrap,12,22);
-%test2 = yt(:,optrap:cltrap,12,21);
 %% Corrections to previous
 for jii = 1:length(xt)-2
         if abs(xm(jii+1)) < abs(xm(jii))
@@ -292,7 +286,7 @@ f = array2table([xm xlon ym ylat z_column lengt findur],'VariableNames',{'x dist
 %set(gca,'XAxisLocation','origin','YAxisLocation', 'origin');
 %xlabel('Eastward movement (m)')
 %ylabel('Northward movement (m)')
-%% Plot E
+%% Plot E, path of particle
 figure
 plot(xlon,ylat)
 grid on
@@ -305,4 +299,3 @@ text(xlon(1)-1.15,ylat(1),'Sediment Trap')
 text(xlon(end)+0.15,ylat(end)+0.05,'Provenance point')
 text(xlon(end)+0.03,ylat(end)-0.03,[num2str(lengt(end))])
 end
-
